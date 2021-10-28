@@ -1,3 +1,7 @@
 # The compiled binary file for both Linux and Windows
 src/ASCII art text generator
 src/ASCII art text generator.exe
+
+# I don't want to track VS Code folders
+.vscode/
+.history/
