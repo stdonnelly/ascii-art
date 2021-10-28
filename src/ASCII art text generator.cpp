@@ -43,10 +43,10 @@ int main() {
     "This will always output capital letters.\n"
     "Please type your text.\n"
     "Type \"~save\" to finish.\n";
-    
+
     // Loop until the user is finished
     do {
-        
+
         // TODO Why is there a dontExit2? I think I made spaghetti with this one
         bool dontExit2 = 1;
 
@@ -57,12 +57,12 @@ int main() {
         cin >> noskipws;
         while ((currentLetter < 7) && (inputWord[(currentLetter - 1)] != ' ') && (inputWord[(currentLetter - 1)] != '\n')) {
             cin >> inputWord[currentLetter];
-            
+
             // Make sure it is uppercase
             if ('a' <= inputWord[currentLetter] && inputWord[currentLetter] <= 'z') {
                 inputWord[currentLetter] = inputWord[currentLetter] & 0x5f;
             }
-            
+
             currentLetter++;
         }
         cin >> skipws;
@@ -74,19 +74,19 @@ int main() {
                 (inputWord[2] == 'A') &&
                 (inputWord[3] == 'V') &&
                 (inputWord[4] == 'E')) {
-                
+
                 // Close the output file
                 outputFile << endl << endl;
                 outputFile.close();
                 cout << endl;
                 cout << "Finished saving file\n";
-                
+
                 string ext;
 
                 while (dontExit2) { // TODO There has to be a better way to make an input loop
-                    
+
                     // Ask the user if they would like to finish
-                    cout << "Would you like to exit?\n"; 
+                    cout << "Would you like to exit?\n";
                     cout << "Type \"yes\" for yes, or \"no\" for no\n";
                     cin >> ext;
 
@@ -116,7 +116,7 @@ int main() {
 void openOutput() {
     // Open the output file
     outputFile.open("../output/ASCII art.txt", fstream::app);
-    
+
     // Get the current time as time_t
     time_t now = time(nullptr);
     // A char[] to use for the formatted time string
@@ -124,7 +124,7 @@ void openOutput() {
     char datetime[20];
     // Format string using ISO 8601
     strftime(datetime, 20, "%F %T", localtime(&now));
-    
+
     // Output the date to the output file
     outputFile << datetime << endl;
 }
@@ -169,9 +169,9 @@ int generateWord(unsigned short numOfChars) {
         default:
             fileToOpen = inputWord[charNum];
         }
-    
+
         inputFile.open("../resources/font/"+fileToOpen+".txt"); // Attempt to open the file
-        
+
         // Use "InvalidChar" if the current char is invalid,
         // But skip if the last char is a whitespace or another nonprintable character
         if (!inputFile.is_open()) {
@@ -186,7 +186,7 @@ int generateWord(unsigned short numOfChars) {
             inputFile.close();
         }
     }
-    
+
     // Write all data to file
     for (int lineNum = 0; lineNum < 5; lineNum++) {
         for (int charNum = 0; charNum < numOfChars; charNum++) {
@@ -194,7 +194,7 @@ int generateWord(unsigned short numOfChars) {
             }
         outputFile << endl;
     }
-    
+
 //     for (int i = 0; i < 5; i++)
 //     {
 //         cout << 1 << line[i][1] << flush;
