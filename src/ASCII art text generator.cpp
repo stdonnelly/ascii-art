@@ -2,26 +2,32 @@
 #include <fstream>
 #include <string>
 #include <ctime>
+#include <cstring>
 
 using namespace std;
 
 // Global variables
 ofstream outputFile;
-char inputWord[7];
 
 // Declaring the functions here
-void openOutput();
-int generateWord(unsigned short);
+bool openOutput();
+int generateWord(string);
 char openChar(char);
+void toUpper(string &);
 
 int main()
 {
+    // Constant
+    const unsigned int CHARS_PER_WORD = 7;
+
     // Variables
     bool dontExit = 1;
-    unsigned short currentLetter;
 
     // Open the output file and print a timestamp
-    openOutput();
+    if (!openOutput())
+    {
+        return 1;
+    }
 
     // User instructions
     cout << "This is a tool to convert text into:\n"
@@ -45,39 +51,20 @@ int main()
             "Type \"~save\" to finish.\n";
 
     // Loop until the user is finished
-    do
+    while (dontExit)
     {
-        // TODO Why is there a dontExit2? I think I made spaghetti with this one
-        bool dontExit2 = 1;
+        string inStr;
+        cin >> inStr;
 
-        // Make sure that the letter starts out as 0
-        currentLetter = 0;
+        toUpper(inStr);
 
-        // TODO There has to be a better way to do this. Perhaps string converted to char[]?
-        cin >> noskipws;
-        while ((currentLetter < 7) && (inputWord[(currentLetter - 1)] != ' ') && (inputWord[(currentLetter - 1)] != '\n'))
+        while (!inStr.empty())
         {
-            cin >> inputWord[currentLetter];
 
-            // Make sure it is uppercase
-            if ('a' <= inputWord[currentLetter] && inputWord[currentLetter] <= 'z')
+            if (inStr.substr(0, 5) == "~SAVE")
             {
-                inputWord[currentLetter] = inputWord[currentLetter] & 0x5f;
-            }
-
-            currentLetter++;
-        }
-        cin >> skipws;
-
-        if (!((inputWord[0] == '\n') || (inputWord[0] == ' ')))
-        {
-            // Find out if inputWord is "~save"
-            if ((inputWord[0] == '~') &&
-                (inputWord[1] == 'S') &&
-                (inputWord[2] == 'A') &&
-                (inputWord[3] == 'V') &&
-                (inputWord[4] == 'E'))
-            {
+                // Delete inStr so the outer loop breaks when this is finished
+                inStr.clear();
 
                 // Close the output file
                 outputFile << endl
@@ -88,9 +75,8 @@ int main()
 
                 string ext;
 
-                while (dontExit2)
-                { // TODO There has to be a better way to make an input loop
-
+                while (true)
+                {
                     // Ask the user if they would like to finish
                     cout << "Would you like to exit?\n";
                     cout << "Type \"yes\" for yes, or \"no\" for no\n";
@@ -99,12 +85,16 @@ int main()
                     if (ext == "yes")
                     {
                         dontExit = 0;
-                        dontExit2 = 0;
+
+                        break;
                     }
                     else if (ext == "no")
                     {
-                        dontExit2 = 0;
-                        openOutput();
+                        if (!openOutput())
+                        {
+                            return 1;
+                        }
+                        break;
                     }
                     else
                     {
@@ -114,23 +104,28 @@ int main()
             }
             else
             {
-                if ((inputWord[currentLetter - 1] == ' ') || (inputWord[currentLetter - 1] == '\n'))
-                {
-                    // Remove whitespace by telling the rest of the program not to go further
-                    currentLetter--;
-                }
-                generateWord(currentLetter);
+                generateWord(inStr.substr(0, 7));
+                inStr.erase(0, 7);
             }
         }
-    } while (dontExit);
+    }
 
     return 0;
 }
 
-void openOutput()
+// Returns 1 if file was successfully opened, 0 if failure
+bool openOutput()
 {
     // Open the output file
     outputFile.open("../output/ASCII art.txt", fstream::app);
+
+    // Test if the output file opened correctly
+    if (!outputFile.is_open())
+    {
+        cout << "Error: Could not open output file.\n";
+        // Failure
+        return 0;
+    }
 
     // Get the current time as time_t
     time_t now = time(nullptr);
@@ -142,14 +137,22 @@ void openOutput()
 
     // Output the date to the output file
     outputFile << datetime << endl;
+
+    // Success
+    return 1;
 }
 
-int generateWord(unsigned short numOfChars)
+int generateWord(string inputWord)
 {
+    // Constants
+    const unsigned int LINES_PER_CHAR = 5;
+    const size_t numOfChars = inputWord.size();
+    const string INVALID_CHAR[LINES_PER_CHAR] = {"", " Missing ", "Character", " Missing ", "Character"};
+
+    // Variables
     ifstream inputFile;
     string fileToOpen;
-    string line[5][7]; // Line number, column number, char number
-    const string INVALID_CHAR[5] = {"", " Missing ", "Character", " Missing ", "Character"};
+    string line[LINES_PER_CHAR][numOfChars]; // Line number, column number, char number
 
     // Read data from all files
     for (int charNum = 0; charNum < numOfChars; charNum++)
@@ -194,14 +197,14 @@ int generateWord(unsigned short numOfChars)
         // But skip if the last char is a whitespace or another nonprintable character
         if (!inputFile.is_open())
         {
-            for (int lineNum = 0; lineNum < 5; lineNum++)
+            for (int lineNum = 0; lineNum < LINES_PER_CHAR; lineNum++)
             {
                 line[lineNum][charNum] = INVALID_CHAR[lineNum];
             }
         }
         else
         {
-            for (int lineNum = 0; lineNum < 5; lineNum++)
+            for (int lineNum = 0; lineNum < LINES_PER_CHAR; lineNum++)
             {
                 getline(inputFile, line[lineNum][charNum]);
             }
@@ -211,7 +214,7 @@ int generateWord(unsigned short numOfChars)
     }
 
     // Write all data to file
-    for (int lineNum = 0; lineNum < 5; lineNum++)
+    for (int lineNum = 0; lineNum < LINES_PER_CHAR; lineNum++)
     {
         for (int charNum = 0; charNum < numOfChars; charNum++)
         {
@@ -219,10 +222,19 @@ int generateWord(unsigned short numOfChars)
         }
         outputFile << endl;
     }
-
-    //     for (int i = 0; i < 5; i++)
-    //     {
-    //         cout << 1 << line[i][1] << flush;
-    //     }
+    
     return 0;
+}
+
+// Makes sure the input string is in uppercase
+void toUpper(string &str)
+{
+    // Loop through all the characters in the string and capitalize any lowercase letters
+    for (int i = 0; i < str.size(); i++)
+    {
+        if ('a' <= str[i] && str[i] <= 'z')
+        {
+            str[i] = str[i] & (char)0x5f;
+        }
+    }
 }
