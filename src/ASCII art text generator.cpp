@@ -2,7 +2,6 @@
 #include <fstream>
 #include <string>
 #include <ctime>
-#include <cstring>
 
 using namespace std;
 
@@ -20,9 +19,6 @@ int main()
     // Constant
     const unsigned int CHARS_PER_WORD = 7;
 
-    // Variables
-    bool dontExit = 1;
-
     // Open the output file and print a timestamp
     if (!openOutput())
     {
@@ -36,21 +32,18 @@ int main()
             "   /__\\    \\___   |         |      |          /__\\    |___/     |    |\n"
             "  /    \\       \\  |         |      |         /    \\   |   \\     |    |\n"
             " /      \\  \\___/   \\___/  __|__  __|__      /      \\  |    \\    |    .\n"
-            "How to use:\n"
+            "Instructions:\n"
             "Type the text that you wish to convert.\n"
-            "Max word size: 7\n"
+            "Max word size: " << CHARS_PER_WORD << endl <<
             "Any higher and program will put the rest on the next line.\n"
-            "If you have already used this program,\n"
-            "It will put the ASCII art right after the last used session.\n"
-            "(Note: Does not work for every font,\n"
-            "\"Courier New\" or \"Consolas\" is recomended for viewing output text.\n"
-            "No others have been tested.)\nCommands (~save, yes, no) are case sensitive.\n"
-            "However, input text is not case sensative.\n"
-            "This will always output capital letters.\n"
-            "Please type your text.\n"
-            "Type \"~save\" to finish.\n";
+            "If there is already an ASCII art.txt file,\n"
+            "that file will be appended with new ASCII art\n"
+            "(Note: Only works with monospaced fonts)\n"
+            "Input is not case sensitive and the output will be all capital.\n"
+            "Please type your text or type \"~save\" to finish.\n";
 
     // Loop until the user is finished
+    bool dontExit = 1;
     while (dontExit)
     {
         string inStr;
@@ -58,6 +51,7 @@ int main()
 
         toUpper(inStr);
 
+        // Break down strings that are too long
         while (!inStr.empty())
         {
 
@@ -79,16 +73,17 @@ int main()
                 {
                     // Ask the user if they would like to finish
                     cout << "Would you like to exit?\n";
-                    cout << "Type \"yes\" for yes, or \"no\" for no\n";
+                    cout << "Type \"yes\" or \"no\"\n";
                     cin >> ext;
+                    toUpper(ext);
 
-                    if (ext == "yes")
+                    if (ext == "YES")
                     {
                         dontExit = 0;
 
                         break;
                     }
-                    else if (ext == "no")
+                    else if (ext == "NO")
                     {
                         if (!openOutput())
                         {
@@ -127,12 +122,12 @@ bool openOutput()
         return 0;
     }
 
-    // Get the current time as time_t
+    // Get the current time as time_t now
     time_t now = time(nullptr);
     // A char[] to use for the formatted time string
     // The length of the string is always 19, and there is always a null value at the end
     char datetime[20];
-    // Format string using ISO 8601
+    // Format string using ISO 8601 (space instead of T)
     strftime(datetime, 20, "%F %T", localtime(&now));
 
     // Output the date to the output file
