@@ -16,9 +16,6 @@ void toUpper(string &);
 
 int main()
 {
-    // Constant
-    const unsigned int CHARS_PER_WORD = 7;
-
     // Open the output file and print a timestamp
     if (!openOutput())
     {
@@ -34,8 +31,6 @@ int main()
             " /      \\  \\___/   \\___/  __|__  __|__      /      \\  |    \\    |    .\n"
             "Instructions:\n"
             "Type the text that you wish to convert.\n"
-            "Max word size: " << CHARS_PER_WORD << endl <<
-            "Any higher and program will put the rest on the next line.\n"
             "If there is already an ASCII art.txt file,\n"
             "that file will be appended with new ASCII art\n"
             "(Note: Only works with monospaced fonts)\n"
@@ -47,61 +42,56 @@ int main()
     while (dontExit)
     {
         string inStr;
-        cin >> inStr;
+        getline(cin, inStr);
 
         toUpper(inStr);
 
-        // Break down strings that are too long
-        while (!inStr.empty())
+        // Only save if the first 5 characters are "~save" (case insensitive)
+        if (inStr.substr(0, 5) == "~SAVE")
         {
+            // Delete inStr so the outer loop breaks when this is finished
+            inStr.clear();
 
-            if (inStr.substr(0, 5) == "~SAVE")
+            // Close the output file
+            outputFile << endl
+                       << endl;
+            outputFile.close();
+            cout << endl;
+            cout << "Finished saving file\n";
+
+            string ext;
+
+            while (true)
             {
-                // Delete inStr so the outer loop breaks when this is finished
-                inStr.clear();
+                // Ask the user if they would like to finish
+                cout << "Would you like to exit?\n";
+                cout << "Type \"yes\" or \"no\"\n";
+                cin >> ext;
+                toUpper(ext);
 
-                // Close the output file
-                outputFile << endl
-                           << endl;
-                outputFile.close();
-                cout << endl;
-                cout << "Finished saving file\n";
-
-                string ext;
-
-                while (true)
+                if (ext == "YES")
                 {
-                    // Ask the user if they would like to finish
-                    cout << "Would you like to exit?\n";
-                    cout << "Type \"yes\" or \"no\"\n";
-                    cin >> ext;
-                    toUpper(ext);
+                    dontExit = 0;
 
-                    if (ext == "YES")
+                    break;
+                }
+                else if (ext == "NO")
+                {
+                    if (!openOutput())
                     {
-                        dontExit = 0;
-
-                        break;
+                        return 1;
                     }
-                    else if (ext == "NO")
-                    {
-                        if (!openOutput())
-                        {
-                            return 1;
-                        }
-                        break;
-                    }
-                    else
-                    {
-                        cout << "Invalid input\n";
-                    }
+                    break;
+                }
+                else
+                {
+                    cout << "Invalid input\n";
                 }
             }
-            else
-            {
-                generateWord(inStr.substr(0, 7));
-                inStr.erase(0, 7);
-            }
+        }
+        else
+        {
+            generateWord(inStr);
         }
     }
 
@@ -217,7 +207,7 @@ int generateWord(string inputWord)
         }
         outputFile << endl;
     }
-    
+
     return 0;
 }
 
