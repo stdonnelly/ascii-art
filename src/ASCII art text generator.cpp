@@ -35,59 +35,29 @@ int main()
             "that file will be appended with new ASCII art\n"
             "(Note: Only works with monospaced fonts)\n"
             "Input is not case sensitive and the output will be all capital.\n"
-            "Please type your text or type \"~save\" to finish.\n";
+            "Please type your text or type \"~exit\" to finish.\n";
 
     // Loop until the user is finished
-    bool dontExit = 1;
-    while (dontExit)
+    while (true)
     {
         string inStr;
         getline(cin, inStr);
 
         toUpper(inStr);
 
-        // Only save if the first 5 characters are "~save" (case insensitive)
-        if (inStr.substr(0, 5) == "~SAVE")
+        // Only save if the first 5 characters are "~exit" (case insensitive)
+        if (inStr.substr(0, 5) == "~EXIT")
         {
             // Delete inStr so the outer loop breaks when this is finished
             inStr.clear();
 
             // Close the output file
-            outputFile << endl
-                       << endl;
+            outputFile << "\n\n";
             outputFile.close();
             cout << endl;
             cout << "Finished saving file\n";
 
-            string ext;
-
-            while (true)
-            {
-                // Ask the user if they would like to finish
-                cout << "Would you like to exit?\n";
-                cout << "Type \"yes\" or \"no\"\n";
-                cin >> ext;
-                toUpper(ext);
-
-                if (ext == "YES")
-                {
-                    dontExit = 0;
-
-                    break;
-                }
-                else if (ext == "NO")
-                {
-                    if (!openOutput())
-                    {
-                        return 1;
-                    }
-                    break;
-                }
-                else
-                {
-                    cout << "Invalid input\n";
-                }
-            }
+            break;
         }
         else
         {
@@ -131,7 +101,7 @@ int generateWord(string inputWord)
 {
     // Constants
     const unsigned int LINES_PER_CHAR = 5;
-    const size_t numOfChars = inputWord.size();
+    const int numOfChars = inputWord.size();
     const string INVALID_CHAR[LINES_PER_CHAR] = {"", " Missing ", "Character", " Missing ", "Character"};
 
     // Variables
@@ -205,8 +175,10 @@ int generateWord(string inputWord)
         {
             outputFile << ' ' << line[lineNum][charNum] << ' ';
         }
-        outputFile << endl;
+        outputFile << '\n';
     }
+
+    outputFile.flush();
 
     return 0;
 }
